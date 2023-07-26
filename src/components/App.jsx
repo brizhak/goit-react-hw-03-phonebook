@@ -23,14 +23,10 @@ class App extends Component {
       return;
     }
 
-    this.setState(prevState => {
-      const updatedContacts = [...prevState.contacts, { id, name, number }];
-      localStorage.setItem(id, JSON.stringify({ id, name, number }));
-
-      return { contacts: updatedContacts };
-    });
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, { id, name, number }],
+    }));
   };
-
   handleFilter = e => {
     this.setState({ filter: e.currentTarget.value });
   };
@@ -38,26 +34,21 @@ class App extends Component {
   handleDelete = e => {
     const idBtn = e.currentTarget.id;
 
-    localStorage.removeItem(idBtn);
-
     const filteredArray = this.state.contacts.filter(item => item.id !== idBtn);
 
     this.setState({ contacts: filteredArray });
   };
 
   componentDidMount() {
-    const savedData = [];
-    for (let i = 0; i < localStorage.length; i += 1) {
-      const key = localStorage.key(i);
-      const contactData = localStorage.getItem(key);
-      if (contactData) {
-        savedData.push(JSON.parse(contactData));
-      }
-    }
+    const savedData = localStorage.getItem('contacts');
 
-    this.setState({
-      contacts: savedData,
-    });
+    if (savedData) {
+      this.setState({ contacts: JSON.parse(savedData) });
+    }
+  }
+
+  componentDidUpdate() {
+    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
   }
 
   render() {
