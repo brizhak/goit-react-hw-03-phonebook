@@ -7,12 +7,7 @@ import style from './App.module.css';
 
 class App extends Component {
   state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
+    contacts: [],
     filter: '',
   };
 
@@ -28,9 +23,12 @@ class App extends Component {
       return;
     }
 
-    this.setState(prevState => ({
-      contacts: [...prevState.contacts, { id, name, number }],
-    }));
+    this.setState(prevState => {
+      const updatedContacts = [...prevState.contacts, { id, name, number }];
+      localStorage.setItem(id, JSON.stringify({ id, name, number }));
+
+      return { contacts: updatedContacts };
+    });
   };
 
   handleFilter = e => {
@@ -40,10 +38,27 @@ class App extends Component {
   handleDelete = e => {
     const idBtn = e.currentTarget.id;
 
+    localStorage.removeItem(idBtn);
+
     const filteredArray = this.state.contacts.filter(item => item.id !== idBtn);
 
     this.setState({ contacts: filteredArray });
   };
+
+  componentDidMount() {
+    const savedData = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      const contactData = localStorage.getItem(key);
+      if (contactData) {
+        savedData.push(JSON.parse(contactData));
+      }
+    }
+
+    this.setState({
+      contacts: savedData,
+    });
+  }
 
   render() {
     const { filter } = this.state;
